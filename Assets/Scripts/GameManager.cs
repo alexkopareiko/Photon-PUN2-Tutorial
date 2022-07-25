@@ -10,8 +10,26 @@ namespace Com.NikfortGames.MyGame
 {
     public class GameManager : MonoBehaviourPunCallbacks
     {
-        #region Private Methods
 
+        #region Public Fields
+
+        public static GameManager Instance;
+
+        #endregion
+
+
+
+        #region MonoBehaviour CallBacks
+
+        private void Start() {
+            Instance = this;
+        }
+
+        #endregion
+
+
+        #region Private Methods
+        
         void LoadArena() {
             if(!PhotonNetwork.IsMasterClient) {
                 Debug.LogError("PhotonNetwork : Trying to Load a level butwe are not the master Client");
@@ -56,6 +74,7 @@ namespace Com.NikfortGames.MyGame
         }
 
         #endregion    
+
 
         #region Public Methods
 
