@@ -31,8 +31,6 @@ namespace Com.NikfortGames.MyGame
             
             string defaultName = string.Empty;
             TMP_InputField _tMP_InputField = this.GetComponent<TMP_InputField>();
-            Debug.Log(PlayerPrefs.GetString(playerNamePrefKey));
-            Debug.Log(_tMP_InputField);
             if(_tMP_InputField != null) {
                 if(PlayerPrefs.HasKey(playerNamePrefKey)) {
                     defaultName = PlayerPrefs.GetString(playerNamePrefKey);
