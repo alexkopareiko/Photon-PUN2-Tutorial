@@ -34,9 +34,11 @@ namespace Com.NikfortGames.MyGame{
         [Tooltip("The local player instance. Use this to know if the local player is reprsented in the Scene")]
         public static GameObject LocalPlayerInstance;
 
-
         [Tooltip("The current Health of our Player")]
         public float Health = 1f;
+
+        [Tooltip("The Player's UI GameObject Prefab")]
+        [SerializeField] public GameObject PlayerUiPrefab;
 
         #endregion
 
@@ -88,6 +90,15 @@ namespace Com.NikfortGames.MyGame{
             // Unity 5.4 has a new scene management. Register a method to callCalledOnLevelWasLoaded
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
             #endif
+
+            if(PlayerUiPrefab != null) {
+                GameObject _uiGo = Instantiate(PlayerUiPrefab);
+                _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+            }
+            else {
+                Debug.LogWarning("<Color=Red><a>Missing</a></Color> PlayerUiPrefab reference on player Prefab", this);
+
+            }
         }
 
         /// <summary>
@@ -162,6 +173,8 @@ namespace Com.NikfortGames.MyGame{
             if(!Physics.Raycast(transform.position, -Vector3.up, 5f)) {
                 transform.position = new Vector3(0f, 5f, 0f);
             }
+            GameObject _uiGo = Instantiate(this.PlayerUiPrefab);
+            _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
         }
 
         #if UNITY_5_4_OR_NEWER
