@@ -31,6 +31,10 @@ namespace Com.NikfortGames.MyGame{
 
         #region Public Fields
 
+        [Tooltip("The local player instance. Use this to know if the local player is reprsented in the Scene")]
+        public static GameObject LocalPlayerInstance;
+
+
         [Tooltip("The current Health of our Player")]
         public float Health = 1f;
 
@@ -56,6 +60,14 @@ namespace Com.NikfortGames.MyGame{
             } else {
                 beams.SetActive(false);
             }
+            // #important
+            // used in GameManager.cs: we keep track of the localPlayerinstance to preent instantiation when levels are synchronized
+            if(photonView.IsMine){
+                PlayerManager.LocalPlayerInstance = this.gameObject;
+            }
+            // #critical
+            // we flag as don't destroy on load so that instance survices level synchronization, thus giving a seamless experience when levels load
+            DontDestroyOnLoad(this.gameObject);
         }
 
         /// <summary>
@@ -72,6 +84,10 @@ namespace Com.NikfortGames.MyGame{
             else {
                 Debug.LogError("<Color=Red><a>Missing</a></Color> Camera Work Component on playerPrefab", this);
             }
+            #if UNITY_5_4_OR_NEWER
+            // Unity 5.4 has a new scene management. Register a method to callCalledOnLevelWasLoaded
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+            #endif
         }
 
         /// <summary>
@@ -127,6 +143,34 @@ namespace Com.NikfortGames.MyGame{
             // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
             Health -= 0.1f * Time.deltaTime;
         }
+
+        #if UNITY_5_4_OR_NEWER
+        void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadingMode){
+            this.CalledOnLevelWasLoaded(scene.buildIndex);
+        }
+        #endif
+
+        #if UNITY_5_4_OR_NEWER
+        /// <summary>See CalledOnLevelWasLoaded. Outdated in Unity 5.4</summary>
+        void OnLevelWasLoaded(int level) {
+            this.CalledOnLevelWasLoaded(level);
+        }
+        #endif
+
+        void CalledOnLevelWasLoaded(int level) {
+            // check if we are outsed the Arena and if it's the case, spawn around the center of the arena in a safe zone
+            if(!Physics.Raycast(transform.position, -Vector3.up, 5f)) {
+                transform.position = new Vector3(0f, 5f, 0f);
+            }
+        }
+
+        #if UNITY_5_4_OR_NEWER
+        public override void OnDisable() {
+            // Always call the base to remove callbacks
+            base.OnDisable();
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+        #endif
 
         #endregion
 
