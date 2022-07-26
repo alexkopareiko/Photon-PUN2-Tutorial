@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using Photon.Pun;
 
 namespace Com.NikfortGames.MyGame {
 
-    public class PlayerAnimatorManager : MonoBehaviour
+    public class PlayerAnimatorManager :  MonoBehaviourPun
     {
 
         #region Private Fields
@@ -28,6 +29,10 @@ namespace Com.NikfortGames.MyGame {
 
         // Update is called once per frame
         private void Update() {
+            if(photonView.IsMine == false && PhotonNetwork.IsConnected == true) {
+                return;
+            }
+
             if(!animator) {
                 return;
             }

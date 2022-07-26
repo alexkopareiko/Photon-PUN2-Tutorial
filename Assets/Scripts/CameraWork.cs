@@ -12,7 +12,7 @@
 using UnityEngine;
 
 
-namespace Photon.Pun.Demo.PunBasics
+namespace Com.NikfortGames.MyGame
 {
     /// <summary>
     /// Camera work. Follow a target

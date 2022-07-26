@@ -9,8 +9,25 @@ namespace Com.NikfortGames.MyGame{
     /// Player manager.
     /// Handles fire input and Beams.
     /// </summary> 
-    public class PlayerManager : MonoBehaviourPunCallbacks
+    public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
     {
+
+        #region IPunObservable implementation
+
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
+            if(stream.IsWriting) {
+                // we own this player: send the others our data
+                stream.SendNext(IsFiring);
+                stream.SendNext(Health);
+            }
+            else {
+                // Network player, receive data
+                this.IsFiring = (bool)stream.ReceiveNext();
+                this.Health = (float)stream.ReceiveNext();
+            }
+        }
+
+        #endregion
 
         #region Public Fields
 
@@ -42,10 +59,28 @@ namespace Com.NikfortGames.MyGame{
         }
 
         /// <summary>
+        /// MonoBehaviour method called on GameObject by Unity during initialization phaze.
+        /// </summary> 
+        private void Start() {
+            CameraWork _cameraWork = this.gameObject.GetComponent<CameraWork>();
+
+            if(_cameraWork != null) {
+                if( photonView.IsMine) {
+                    _cameraWork.OnStartFollowing();
+                }
+            }
+            else {
+                Debug.LogError("<Color=Red><a>Missing</a></Color> Camera Work Component on playerPrefab", this);
+            }
+        }
+
+        /// <summary>
         /// MonoBehaviour method called on GameObject by Unity on every frame.
         /// </summary> 
         private void Update() {
-            ProcessInputs();
+            if(photonView.IsMine) {
+                ProcessInputs();
+            }
             if(Health <= 0f) {
                 GameManager.Instance.LeaveRoom();
             }
